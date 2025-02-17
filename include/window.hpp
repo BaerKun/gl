@@ -1,5 +1,5 @@
-#ifndef OPENGL_INIT_WINDOW_HPP
-#define OPENGL_INIT_WINDOW_HPP
+#ifndef GL_WINDOW_HPP
+#define GL_WINDOW_HPP
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -10,22 +10,20 @@ class Window {
 public:
     Window(int width, int height, const char *name);
 
-    inline void refresh() {
+    void refresh() const {
         glfwSwapBuffers(_window);
     }
 
-    inline bool shouldClose() {
+    bool shouldClose() const {
         return glfwWindowShouldClose(_window);
     }
 
-    inline void setKeyCallback(KeyCallback callback) {
+    void setKeyCallback(const KeyCallback callback) const {
         glfwSetKeyCallback(_window, callback);
     }
 
 private:
     GLFWwindow *_window;
-    int _width, _height;
-    const char *_name;
 };
 
-#endif //OPENGL_INIT_WINDOW_HPP
+#endif //GL_WINDOW_HPP

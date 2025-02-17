@@ -1,7 +1,6 @@
 #include "shader.hpp"
 #include <iostream>
 
-GLuint CURRENT_SHADER_PROGRAM = 0;
 static char errorLog[256];
 
 void Shader::compile(const char *source) const {
@@ -15,12 +14,12 @@ void Shader::compile(const char *source) const {
         glGetShaderInfoLog(id, 256, nullptr, errorLog);
         std::cerr << "Shader Compilation Error:" << std::endl << errorLog;
         std::memset(errorLog, 0, 256);
-        return;
     }
 }
 
 void Shader::load(const char *filename) const  {
-    FILE *file = fopen(filename, "r");
+    // 注意使用"rb"，否则在windows下，因为自动将\r\n替换为\n，size和读取内容不匹配
+    FILE *file = fopen(filename, "rb");
 
     if(file == nullptr){
         std::cerr << "Failed to open shader source file: " << filename << std::endl;
@@ -28,10 +27,10 @@ void Shader::load(const char *filename) const  {
     }
 
     std::fseek(file, 0, SEEK_END);
-    size_t size = std::ftell(file);
+    const size_t size = std::ftell(file);
     std::rewind(file);
 
-    char *source = new char[size + 1];
+    const auto source = new char[size + 1];
     std::fread(source, 1, size, file);
     source[size] = '\0';
 
@@ -53,11 +52,6 @@ ShaderProgram::ShaderProgram(const Shader& vertexShader, const Shader& fragmentS
         glGetProgramInfoLog(id, 256, &success, errorLog);
         std::cerr << "Shader Program Link Error:" << std::endl << errorLog << std::endl;
     }
-}
-
-void ShaderProgram::use() const {
-    glUseProgram(this->id);
-    CURRENT_SHADER_PROGRAM = id;
 }
 
 void ShaderProgram::setUniform(const char *name, const int value) const {

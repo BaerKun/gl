@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-Window::Window(int width, int height, const char *name) {
+Window::Window(const int width, const int height, const char *name) {
     // 初始化GLFW
     glfwInit();
 
@@ -20,7 +20,7 @@ Window::Window(int width, int height, const char *name) {
     // 创建窗口
     _window = glfwCreateWindow(width, height, name, nullptr, nullptr);
 
-    if(_window == nullptr){
+    if (_window == nullptr) {
         std::cerr << "Error: Failed to create GLFW window";
         return;
     }
@@ -28,11 +28,7 @@ Window::Window(int width, int height, const char *name) {
     glfwMakeContextCurrent(_window);
 
     // 初始化GLAD
-    if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         std::cerr << "Error: Failed to initialize GLAD";
     }
-
-    _width = width;
-    _height = height;
-    _name = name;
 }

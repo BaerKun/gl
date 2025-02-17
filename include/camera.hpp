@@ -1,8 +1,8 @@
-#ifndef OPENGL_CAMERA_HPP
-#define OPENGL_CAMERA_HPP
+#ifndef GL_CAMERA_HPP
+#define GL_CAMERA_HPP
 
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 class Camera {
 public:
@@ -14,7 +14,7 @@ public:
 
     void setProjection(float aspectRatio, float radiusOfView);
 
-    glm::mat4 getMatrix(bool useProjection = true);
+    glm::mat4 getMatrix(bool useProjection = true) const;
 
     void lookAt(const glm::vec3 &target);
 
@@ -30,6 +30,4 @@ private:
     glm::mat4 view, projection;
 };
 
-extern Camera *currentCamera;
-
-#endif //OPENGL_CAMERA_HPP
+#endif //GL_CAMERA_HPP
