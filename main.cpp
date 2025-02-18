@@ -8,35 +8,36 @@
 static void keyCallback(GLFWwindow *, int, int, int, int);
 
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f,  0.5f, 0.0f
+        0.0f, 0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        1.0f, 0.5f, 0.0f
 };
 
-int main(){
+unsigned elements[] = {
+        0, 1, 2,
+        2, 3, 0
+};
+
+int main() {
     const Window window(800, 600, "learn-GL");
     window.setKeyCallback(&keyCallback);
 
-    const Shader vertexShader(GL_VERTEX_SHADER);
-    vertexShader.load("../glsl/vert0.glsl");
-    const Shader fragmentShader(GL_FRAGMENT_SHADER);
-    fragmentShader.load("../glsl/frag0.glsl");
-    const ShaderProgram program(vertexShader, fragmentShader);
+    const ShaderProgram program(
+            Shader(GL_VERTEX_SHADER, Shader::loadSource("../glsl/vert0.glsl").c_str()),
+            Shader(GL_FRAGMENT_SHADER, Shader::loadSource("../glsl/frag0.glsl").c_str()));
 
-    const VertexBuffer vbo(vertices, sizeof(vertices));
-    const VertexArray vao;
-    vao.setVertexAttribute(0, 3, GL_FLOAT, sizeof(float) * 3, 0);
+    const VertexSet triangle(vertices, 4, {3});
+    const ElementBuffer ebo(elements, sizeof(unsigned) * 6);
 
-    const VertexSet triangle(&vbo, &vao);
-
-    while (!window.shouldClose()){
+    while (!window.shouldClose()) {
         glfwPollEvents();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         program.use();
-        triangle.draw(GL_TRIANGLES, 3);
+        triangle.draw(GL_TRIANGLES, 6, &ebo);
 
         window.refresh();
     }
@@ -44,8 +45,17 @@ int main(){
     return 0;
 }
 
-static void keyCallback(GLFWwindow *window, const int key, const int scancode, const int action, const int mode){
+static void keyCallback(GLFWwindow *window, const int key, const int scancode, const int action, const int mode) {
     std::cout << key << std::endl;
+    static float red[] = {1.f, 0.f, 0.f};
+    static float green[] = {0.f, 1.f, 0.f};
+    static float blue[] = {0.f, 0.f, 1.f};
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+        currShaderProgram->setUniformVec("color_", red, 3);
+    if (key == GLFW_KEY_G && action == GLFW_PRESS)
+        currShaderProgram->setUniformVec("color_", green, 3);
+    if (key == GLFW_KEY_B && action == GLFW_PRESS)
+        currShaderProgram->setUniformVec("color_", blue, 3);
 }

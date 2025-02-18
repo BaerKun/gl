@@ -19,7 +19,7 @@ void Camera::setProjection(float aspectRatio, float radiusOfView) {
     this->projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, radiusOfView);
 }
 
-glm::mat4 Camera::getMatrix(bool useProjection) {
+glm::mat4 Camera::getMatrix(bool useProjection) const {
     if (useProjection)
         return this->projection * this->view;
     return this->view;

@@ -1,7 +1,30 @@
 #include "shader.hpp"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
+const ShaderProgram *currShaderProgram;
 static char errorLog[256];
+
+static inline void uniformNotFound(const char *name) {
+    std::cerr << "Error: Uniform " << name << " not found." << std::endl;
+}
+
+std::string Shader::loadSource(const char *filename) {
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open file: " << filename << std::endl;
+        return "";
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string content = buffer.str();
+
+    file.close();
+    return content;
+}
 
 void Shader::compile(const char *source) const {
     int success;
@@ -10,37 +33,20 @@ void Shader::compile(const char *source) const {
     glCompileShader(id);
 
     glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-    if (!success){
+    if (!success) {
         glGetShaderInfoLog(id, 256, nullptr, errorLog);
         std::cerr << "Shader Compilation Error:" << std::endl << errorLog;
         std::memset(errorLog, 0, 256);
     }
 }
 
-void Shader::load(const char *filename) const  {
-    // 注意使用"rb"，否则在windows下，因为自动将\r\n替换为\n，size和读取内容不匹配
-    FILE *file = fopen(filename, "rb");
-
-    if(file == nullptr){
-        std::cerr << "Failed to open shader source file: " << filename << std::endl;
-        return;
-    }
-
-    std::fseek(file, 0, SEEK_END);
-    const size_t size = std::ftell(file);
-    std::rewind(file);
-
-    const auto source = new char[size + 1];
-    std::fread(source, 1, size, file);
-    source[size] = '\0';
-
-    compile(source);
-
-    fclose(file);
-    delete[] source;
+void Shader::load(const char *filename) const {
+    std::string source = loadSource(filename);
+    if (!source.empty())
+        compile(source.c_str());
 }
 
-ShaderProgram::ShaderProgram(const Shader& vertexShader, const Shader& fragmentShader) {
+ShaderProgram::ShaderProgram(const Shader &vertexShader, const Shader &fragmentShader) {
     id = glCreateProgram();
     glAttachShader(id, vertexShader.id);
     glAttachShader(id, fragmentShader.id);
@@ -48,22 +54,39 @@ ShaderProgram::ShaderProgram(const Shader& vertexShader, const Shader& fragmentS
 
     int success;
     glGetProgramiv(id, GL_LINK_STATUS, &success);
-    if(!success){
+    if (!success) {
         glGetProgramInfoLog(id, 256, &success, errorLog);
         std::cerr << "Shader Program Link Error:" << std::endl << errorLog << std::endl;
     }
 }
 
+void ShaderProgram::use() const {
+    glUseProgram(this->id);
+    currShaderProgram = this;
+}
+
 void ShaderProgram::setUniform(const char *name, const int value) const {
-    glUniform1i(glGetUniformLocation(this->id, name), value);
+    const GLint location = glGetUniformLocation(id, name);
+    if (location == -1)
+        uniformNotFound(name);
+    else
+        glUniform1i(location, value);
 }
 
 void ShaderProgram::setUniform(const char *name, const float value) const {
-    glUniform1f(glGetUniformLocation(this->id, name), value);
+    const GLint location = glGetUniformLocation(id, name);
+    if (location == -1)
+        uniformNotFound(name);
+    else
+        glUniform1f(location, value);
 }
 
-void ShaderProgram::setUniformv(const char *name, const float *value, int count) const {
-    GLint location = glGetUniformLocation(this->id, name);
+void ShaderProgram::setUniformVec(const char *name, const float *value, int count) const {
+    const GLint location = glGetUniformLocation(this->id, name);
+    if (location == -1) {
+        uniformNotFound(name);
+        return;
+    }
     switch (count) {
         case 4:
             glUniform4fv(location, 1, value);
@@ -78,9 +101,13 @@ void ShaderProgram::setUniformv(const char *name, const float *value, int count)
     }
 }
 
-void ShaderProgram::setUniformm(const char *name, const float *value, int rowcols) const {
+void ShaderProgram::setUniformMat(const char *name, const float *value, int rowCols) const {
     GLint location = glGetUniformLocation(this->id, name);
-    switch (rowcols) {
+    if (location == -1) {
+        uniformNotFound(name);
+        return;
+    }
+    switch (rowCols) {
         case 4:
             glUniformMatrix4fv(location, 1, GL_FALSE, value);
             break;

@@ -2,18 +2,23 @@
 #define GL_SHADER_HPP
 
 #include "glad/glad.h"
+#include <string>
 
 class Shader {
 public:
     GLuint id;
 
-    explicit Shader(GLenum type) {
+    explicit Shader(GLenum type, const char *source= nullptr) {
         id = glCreateShader(type);
+        if (source != nullptr)
+            compile(source);
     }
 
     void compile(const char *source) const;
 
     void load(const char *filename) const;
+
+    static std::string loadSource(const char *filename);
 
     ~Shader() {
         glDeleteShader(id);
@@ -28,20 +33,20 @@ public:
         glDeleteProgram(id);
     };
 
-    void use() const {
-        glUseProgram(this->id);
-    }
+    void use() const;
 
     void setUniform(const char *name, float value) const;
 
     void setUniform(const char *name, int value) const;
 
-    void setUniformv(const char *name, const float *value, int count) const;
+    void setUniformVec(const char *name, const float *value, int count) const;
 
-    void setUniformm(const char *name, const float *value, int rowcols) const;
+    void setUniformMat(const char *name, const float *value, int rowCols) const;
 
 private:
     GLuint id;
 };
+
+extern const ShaderProgram *currShaderProgram;
 
 #endif //GL_SHADER_HPP

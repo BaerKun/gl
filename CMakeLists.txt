@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(learnGL C CXX)
 
+if (APPLE)
+    # macos下使用clang编译
+    set(CMAKE_C_COMPILER /Library/Developer/CommandLineTools/usr/bin/cc)
+    set(CMAKE_CXX_COMPILER /Library/Developer/CommandLineTools/usr/bin/c++)
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 
 # glm是头文件库，不需要单独编译
