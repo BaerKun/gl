@@ -1,9 +1,11 @@
 #include "shader.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 
-const ShaderProgram *currShaderProgram;
+const ShaderProgram *currShaderProgram = nullptr;
 static char errorLog[256];
 
 static inline void uniformNotFound(const char *name) {
@@ -41,7 +43,7 @@ void Shader::compile(const char *source) const {
 }
 
 void Shader::load(const char *filename) const {
-    std::string source = loadSource(filename);
+    const std::string source = loadSource(filename);
     if (!source.empty())
         compile(source.c_str());
 }
@@ -60,11 +62,6 @@ ShaderProgram::ShaderProgram(const Shader &vertexShader, const Shader &fragmentS
     }
 }
 
-void ShaderProgram::use() const {
-    glUseProgram(this->id);
-    currShaderProgram = this;
-}
-
 void ShaderProgram::setUniform(const char *name, const int value) const {
     const GLint location = glGetUniformLocation(id, name);
     if (location == -1)
@@ -81,28 +78,28 @@ void ShaderProgram::setUniform(const char *name, const float value) const {
         glUniform1f(location, value);
 }
 
-void ShaderProgram::setUniformVec(const char *name, const float *value, int count) const {
+void ShaderProgram::setUniformVec(const char *name, const float *value, const int dims) const {
     const GLint location = glGetUniformLocation(this->id, name);
     if (location == -1) {
         uniformNotFound(name);
         return;
     }
-    switch (count) {
-        case 4:
-            glUniform4fv(location, 1, value);
+    switch (dims) {
+        case 2:
+            glUniform2fv(location, 1, value);
             break;
         case 3:
             glUniform3fv(location, 1, value);
             break;
-        case 2:
-            glUniform2fv(location, 1, value);
+        case 4:
+            glUniform4fv(location, 1, value);
         default:
             break;
     }
 }
 
-void ShaderProgram::setUniformMat(const char *name, const float *value, int rowCols) const {
-    GLint location = glGetUniformLocation(this->id, name);
+void ShaderProgram::setUniformMat(const char *name, const float *value, const int rowCols) const {
+    const GLint location = glGetUniformLocation(this->id, name);
     if (location == -1) {
         uniformNotFound(name);
         return;

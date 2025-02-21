@@ -8,7 +8,7 @@ class Shader {
 public:
     GLuint id;
 
-    explicit Shader(GLenum type, const char *source= nullptr) {
+    explicit Shader(const GLenum type, const char *source = nullptr) {
         id = glCreateShader(type);
         if (source != nullptr)
             compile(source);
@@ -25,28 +25,32 @@ public:
     }
 };
 
+class ShaderProgram;
+extern const ShaderProgram *currShaderProgram;
+
 class ShaderProgram {
 public:
     ShaderProgram(const Shader &vertexShader, const Shader &fragmentShader);
 
     ~ShaderProgram() {
         glDeleteProgram(id);
-    };
+    }
 
-    void use() const;
+    void use() const {
+        glUseProgram(id);
+        currShaderProgram = this;
+    }
 
     void setUniform(const char *name, float value) const;
 
     void setUniform(const char *name, int value) const;
 
-    void setUniformVec(const char *name, const float *value, int count) const;
+    void setUniformVec(const char *name, const float *value, int dims) const;
 
     void setUniformMat(const char *name, const float *value, int rowCols) const;
 
 private:
     GLuint id;
 };
-
-extern const ShaderProgram *currShaderProgram;
 
 #endif //GL_SHADER_HPP

@@ -1,7 +1,11 @@
 #version 330 core
-in vec4 color;
-out vec4 color_out;
+in vec2 _texpos;
+
+out vec4 color;
+
+uniform sampler2D tex0;
+uniform sampler2D tex1;
 
 void main() {
-    color_out = color;
+    color = mix(texture(tex0, _texpos), texture(tex1, _texpos), 0.8);
 }

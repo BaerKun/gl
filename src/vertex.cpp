@@ -1,8 +1,8 @@
 #include "vertex.hpp"
 
 
-void VertexArray::attribute(GLuint location, GLint count, GLenum type, GLint stride,
-                            GLuint64 offset) const {
+void VertexArray::attribute(const GLuint location, const GLint count, const GLenum type, const GLint stride,
+                            const GLuint64 offset) const {
     bind();
     glVertexAttribPointer(location, count, type, GL_FALSE, stride, reinterpret_cast<void *>(offset));
     glEnableVertexAttribArray(location);
