@@ -23,8 +23,16 @@ public:
         glfwSetKeyCallback(_window, callback);
     }
 
+    double getDeltaTime() {
+        const double currFrameTime = glfwGetTime();
+        const double deltaTime = currFrameTime - _lastFrameTime;
+        _lastFrameTime = currFrameTime;
+        return deltaTime;
+    }
+
 private:
     GLFWwindow *_window;
+    double _lastFrameTime = 0.;
 };
 
 #endif //GL_WINDOW_HPP

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "texture.hpp"
 #include "glad/glad.h"
 #include "window.hpp"
@@ -19,7 +21,7 @@ unsigned elements[] = {
 };
 
 int main() {
-    const Window window(800, 600, "learn-GL");
+    Window window(800, 600, "learn-GL");
     window.setKeyCallback(&keyCallback);
 
     const Texture2D happy("../img/happy_face.png");
@@ -33,10 +35,14 @@ int main() {
     const ElementBuffer ebo(elements, sizeof(unsigned) * 6);
 
     while (!window.shouldClose()) {
-        glfwPollEvents();
+        // FPS通常取决于显示器刷新率
+        const double deltaTime = window.getDeltaTime();
+        std::printf("\rFPS: %.3lf    ", 1. / deltaTime);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glfwPollEvents();
 
         program.use();
         happy.bind(0);

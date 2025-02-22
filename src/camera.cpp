@@ -15,17 +15,17 @@ void Camera::use() {
     currentCamera = this;
 }
 
-void Camera::setProjection(float aspectRatio, float radiusOfView) {
+void Camera::setProjection(const float aspectRatio, const float radiusOfView) {
     this->projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, radiusOfView);
 }
 
-glm::mat4 Camera::getMatrix(bool useProjection) const {
+glm::mat4 Camera::getMatrix(const bool useProjection) const {
     if (useProjection)
         return this->projection * this->view;
     return this->view;
 }
 
-void Camera::move(float x, float y, float z) {
+void Camera::move(const float x, const float y, const float z) {
     moveTo(position - front * z + right * x + up * y);
 }
 
@@ -41,7 +41,7 @@ void Camera::lookAt(const glm::vec3 &target) {
     this->view = glm::lookAt(position, target, up);
 }
 
-void Camera::rotate(float pitch, float yaw, float roll) {
+void Camera::rotate(const float pitch, const float yaw, const float roll) {
     glm::mat4 transform4(1.0f);
 
     transform4 = glm::rotate(transform4, glm::radians(-roll), front);
