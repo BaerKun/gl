@@ -1,57 +1,27 @@
 #include "camera.hpp"
 
-Camera *currentCamera;
-
 Camera::Camera(const glm::vec3 &position, const glm::vec3 &direction, const glm::vec3 &up) {
-    this->position = position;
-    this->front = glm::normalize(direction);
-    this->right = glm::normalize(glm::cross(direction, up));
-    this->up = glm::normalize(glm::cross(right, direction));
-    this->view = glm::lookAt(position, position + direction, up);
-    this->projection = glm::mat4(1.f);
+    _forward = glm::normalize(direction);
+    _right = glm::normalize(glm::cross(_forward, up));
+    _up = glm::cross(_right, _forward);
+    _position = position;
+
+    _view = glm::mat4(_right.x, _up.x, -_forward.x, 0.0f,
+                      _right.y, _up.y, -_forward.y, 0.0f,
+                      _right.z, _up.z, -_forward.z, 0.0f,
+                      -glm::dot(_right, position), -glm::dot(_up, position), glm::dot(_forward, position), 1.0f);
+
+    _projection = glm::mat4();
 }
 
-void Camera::use() {
-    currentCamera = this;
+void Camera::calcTranslate() {
+    _view[3][0] = -glm::dot(_right, _position);
+    _view[3][1] = -glm::dot(_up, _position);
+    _view[3][2] = glm::dot(_forward, _position);
 }
 
-void Camera::setProjection(const float aspectRatio, const float radiusOfView) {
-    this->projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, radiusOfView);
-}
-
-glm::mat4 Camera::getMatrix(const bool useProjection) const {
-    if (useProjection)
-        return this->projection * this->view;
-    return this->view;
-}
-
-void Camera::move(const float x, const float y, const float z) {
-    moveTo(position - front * z + right * x + up * y);
-}
-
-void Camera::moveTo(const glm::vec3 &target) {
-    this->position = target;
-    this->view = glm::lookAt(position, position + front, up);
-}
-
-void Camera::lookAt(const glm::vec3 &target) {
-    this->front = glm::normalize(target - position);
-    this->right = glm::normalize(glm::cross(front, up));
-    this->up = glm::normalize(glm::cross(right, front));
-    this->view = glm::lookAt(position, target, up);
-}
-
-void Camera::rotate(const float pitch, const float yaw, const float roll) {
-    glm::mat4 transform4(1.0f);
-
-    transform4 = glm::rotate(transform4, glm::radians(-roll), front);
-    transform4 = glm::rotate(transform4, glm::radians(pitch), right);
-    transform4 = glm::rotate(transform4, glm::radians(yaw), up);
-
-    glm::mat3 transform3(transform4);
-
-    this->front = glm::normalize(transform3 * front);
-    this->right = glm::normalize(transform3 * right);
-    this->up = glm::normalize(transform3 * up);
-    this->view = glm::lookAt(position, position + front, up);
+void Camera::getAxisFromRotMat() {
+    _right = glm::vec3(_view[0][0], _view[1][0], _view[2][0]);
+    _up = glm::vec3(_view[0][1], _view[1][1], _view[2][1]);
+    _forward = glm::vec3(-_view[0][2], -_view[1][2], -_view[2][2]);
 }

@@ -3,31 +3,42 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "shader.hpp"
 
 typedef void (*KeyCallback)(GLFWwindow *window, int key, int scancode, int action, int mods);
 
+typedef void (*CursorPosCallback)(GLFWwindow *window, double xpos, double ypos);
+
 class Window {
 public:
+    explicit Window(GLFWwindow *window) {
+        _window = window;
+    }
+
     Window(int width, int height, const char *name);
 
-    void refresh() const {
+    void refresh() {
         glfwSwapBuffers(_window);
+        _lastFrameTime = glfwGetTime();
     }
 
     bool shouldClose() const {
         return glfwWindowShouldClose(_window);
     }
 
+    void close() const {
+        glfwSetWindowShouldClose(_window, GLFW_TRUE);
+    }
+
     void setKeyCallback(const KeyCallback callback) const {
         glfwSetKeyCallback(_window, callback);
     }
 
-    double getDeltaTime() {
-        const double currFrameTime = glfwGetTime();
-        const double deltaTime = currFrameTime - _lastFrameTime;
-        _lastFrameTime = currFrameTime;
-        return deltaTime;
+    void setCursorPosCallback(const CursorPosCallback callback) const {
+        glfwSetCursorPosCallback(_window, callback);
+    }
+
+    double getDeltaTime() const {
+        return glfwGetTime() - _lastFrameTime;
     }
 
 private:

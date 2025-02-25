@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(learnGL C CXX)
+project(gl C CXX)
 
 if (APPLE)
     # macos下使用clang编译
