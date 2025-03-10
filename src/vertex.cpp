@@ -1,3 +1,4 @@
+#include <numeric>
 #include "vertex.hpp"
 
 
@@ -18,27 +19,20 @@ void ElementBuffer::loadData(const void *data, const GLint64 size) const {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 }
 
-VertexSet::VertexSet(const void *buff, const GLint64 numVertices, const std::vector<GLint> &dimsEachProperty,
-          const VertexBuffer **vbo, const VertexArray **vao){
-    GLint dimsEachVertex = 0;
-    for (const GLint dims : dimsEachProperty)
-        dimsEachVertex += dims;
-
+VertexSet::VertexSet(const void *buff, const GLint64 numVertices, const std::vector<GLint> &dimsEachProperty){
+    const GLint dimsEachVertex = std::accumulate(dimsEachProperty.begin(), dimsEachProperty.end(), 0);
     const GLint sizeEachVertex = dimsEachVertex * static_cast<GLint>(sizeof(float));
     const GLint64 sizeBuff = numVertices * sizeEachVertex;
+    const GLuint numProperties = dimsEachProperty.size();
+    GLuint64 offset = 0;
 
     _vbo = new VertexBuffer(buff, sizeBuff);
     _vao = new VertexArray();
 
-    const GLuint numProperties = dimsEachProperty.size();
-    GLuint64 offset = 0;
     for (GLuint i = 0; i < numProperties; ++i){
         _vao->attribute(i, dimsEachProperty[i], GL_FLOAT, sizeEachVertex, offset);
         offset += dimsEachProperty[i] * sizeof (float);
     }
-
-    if (vbo != nullptr) *vbo = _vbo;
-    if (vao != nullptr) *vao = _vao;
 }
 
 void VertexSet::draw(const GLenum mode, const GLint count, const ElementBuffer *ebo) const {

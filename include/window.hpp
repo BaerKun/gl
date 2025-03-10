@@ -18,7 +18,10 @@ public:
 
     void refresh() {
         glfwSwapBuffers(_window);
-        _lastFrameTime = glfwGetTime();
+
+        const double currentTime = glfwGetTime();
+        _deltaTime = currentTime - _lastFrameTime;
+        _lastFrameTime = currentTime;
     }
 
     bool shouldClose() const {
@@ -38,12 +41,13 @@ public:
     }
 
     double getDeltaTime() const {
-        return glfwGetTime() - _lastFrameTime;
+        return _deltaTime;
     }
 
 private:
     GLFWwindow *_window;
     double _lastFrameTime = 0.;
+    double _deltaTime = 0.;
 };
 
 #endif //GL_WINDOW_HPP

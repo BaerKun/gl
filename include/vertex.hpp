@@ -85,8 +85,7 @@ public:
 
 class VertexSet {
 public:
-    VertexSet(const void *buff, GLint64 numVertices, const std::vector<GLint> &dimsEachProperty,
-              const VertexBuffer **vbo = nullptr, const VertexArray **vao = nullptr);
+    VertexSet(const void *buff, GLint64 numVertices, const std::vector<GLint> &dimsEachProperty);
 
     void draw(GLenum mode, GLint count, const ElementBuffer *ebo = nullptr) const;
 

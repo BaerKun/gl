@@ -15,7 +15,7 @@ static void keyCallback(GLFWwindow *, int, int, int, int);
 
 static void cursorPosCallback(GLFWwindow *, double, double);
 
-float vertices[] = {
+constexpr float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -59,15 +59,15 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
-unsigned elements[] = {
+constexpr unsigned elements[] = {
     0, 1, 2,
     2, 3, 0
 };
 
 Camera camera;
+Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "learn-GL");
 
 int main() {
-    Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "learn-GL");
     window.setKeyCallback(&keyCallback);
     window.setCursorPosCallback(&cursorPosCallback);
 
@@ -105,10 +105,8 @@ int main() {
     return 0;
 }
 
-static void keyCallback(GLFWwindow *window, const int key, const int scancode, const int action, const int mode) {
+static void keyCallback(GLFWwindow *w, const int key, const int scancode, const int action, const int mode) {
     static bool keyboard[512] = {false};
-
-    const Window w(window);
 
     if (action == GLFW_PRESS)
         keyboard[key] = true;
@@ -116,26 +114,27 @@ static void keyCallback(GLFWwindow *window, const int key, const int scancode, c
         keyboard[key] = false;
 
     if (keyboard[GLFW_KEY_ESCAPE])
-        w.close();
+        window.close();
 
-    constexpr float speed = 0.05f;
+    constexpr float speed = 0.5f;
+    const float delta = window.getDeltaTime();
     glm::vec3 t{};
 
     if (keyboard[GLFW_KEY_W])
-        t.z += speed;
+        t.z += speed * delta;
     if (keyboard[GLFW_KEY_S])
-        t.z -= speed;
+        t.z -= speed * delta;
     if (keyboard[GLFW_KEY_A])
-        t.x -= speed;
+        t.x -= speed * delta;
     if (keyboard[GLFW_KEY_D])
-        t.x += speed;
+        t.x += speed * delta;
     camera.move(t);
 
     if (keyboard[GLFW_KEY_SPACE])
         camera.lookAt(glm::vec3(0, 0, 0));
 }
 
-static void cursorPosCallback(GLFWwindow *window, const double x, const double y) {
+static void cursorPosCallback(GLFWwindow *w, const double x, const double y) {
     static double lastX = 0, lastY = 0;
     if (lastX == 0 && lastY == 0) {
         lastX = x;
