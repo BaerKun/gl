@@ -4,50 +4,61 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-typedef void (*KeyCallback)(GLFWwindow *window, int key, int scancode, int action, int mods);
 
-typedef void (*CursorPosCallback)(GLFWwindow *window, double xpos, double ypos);
+typedef struct {
+    bool keyboard[GLFW_KEY_LAST + 1];
+    int key;
+    int action;
+} KeyState;
+
+typedef struct {
+    double x, y;
+    double scrollX, scrollY;
+    int button;
+    int action;
+} MouseState;
+
 
 class Window {
 public:
-    explicit Window(GLFWwindow *window) {
-        _window = window;
-    }
-
     Window(int width, int height, const char *name);
 
     void refresh() {
-        glfwSwapBuffers(_window);
+        glfwSwapBuffers(window_);
 
         const double currentTime = glfwGetTime();
-        _deltaTime = currentTime - _lastFrameTime;
-        _lastFrameTime = currentTime;
+        deltaTime_ = currentTime - lastFrameTime_;
+        lastFrameTime_ = currentTime;
     }
 
+    static void updateInputState();
+
     bool shouldClose() const {
-        return glfwWindowShouldClose(_window);
+        return glfwWindowShouldClose(window_);
     }
 
     void close() const {
-        glfwSetWindowShouldClose(_window, GLFW_TRUE);
-    }
-
-    void setKeyCallback(const KeyCallback callback) const {
-        glfwSetKeyCallback(_window, callback);
-    }
-
-    void setCursorPosCallback(const CursorPosCallback callback) const {
-        glfwSetCursorPosCallback(_window, callback);
+        glfwSetWindowShouldClose(window_, GLFW_TRUE);
     }
 
     double getDeltaTime() const {
-        return _deltaTime;
+        return deltaTime_;
+    }
+
+    const KeyState &getKeyState() const {
+        return keyState_;
+    }
+
+    const MouseState &getMouseState() const {
+        return mouseState_;
     }
 
 private:
-    GLFWwindow *_window;
-    double _lastFrameTime = 0.;
-    double _deltaTime = 0.;
+    GLFWwindow *window_;
+    double lastFrameTime_ = 0.;
+    double deltaTime_ = 0.;
+    KeyState &keyState_;
+    MouseState &mouseState_;
 };
 
 #endif //GL_WINDOW_HPP

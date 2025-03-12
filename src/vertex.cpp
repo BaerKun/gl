@@ -26,18 +26,18 @@ VertexSet::VertexSet(const void *buff, const GLint64 numVertices, const std::vec
     const GLuint numProperties = dimsEachProperty.size();
     GLuint64 offset = 0;
 
-    _vbo = new VertexBuffer(buff, sizeBuff);
-    _vao = new VertexArray();
+    vbo_ = new VertexBuffer(buff, sizeBuff);
+    vao_ = new VertexArray();
 
     for (GLuint i = 0; i < numProperties; ++i){
-        _vao->attribute(i, dimsEachProperty[i], GL_FLOAT, sizeEachVertex, offset);
+        vao_->attribute(i, dimsEachProperty[i], GL_FLOAT, sizeEachVertex, offset);
         offset += dimsEachProperty[i] * sizeof (float);
     }
 }
 
 void VertexSet::draw(const GLenum mode, const GLint count, const ElementBuffer *ebo) const {
-    _vbo->bind();
-    _vao->bind();
+    vbo_->bind();
+    vao_->bind();
 
     if (ebo != nullptr) {
         ebo->bind();

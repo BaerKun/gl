@@ -11,10 +11,6 @@
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 
-static void keyCallback(GLFWwindow *, int, int, int, int);
-
-static void cursorPosCallback(GLFWwindow *, double, double);
-
 constexpr float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -67,10 +63,9 @@ constexpr unsigned elements[] = {
 Camera camera;
 Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "learn-GL");
 
-int main() {
-    window.setKeyCallback(&keyCallback);
-    window.setCursorPosCallback(&cursorPosCallback);
+static void processInput();
 
+int main() {
     const Texture2D happy("../img/happy_face.png");
     const Texture2D container("../img/container.jpg");
 
@@ -94,7 +89,8 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glfwPollEvents();
+        Window::updateInputState();
+        processInput();
 
         program.setUniformMat("transform", glm::value_ptr(camera.getMatrix()), 4);
         cube.draw(GL_TRIANGLES, 36);
@@ -105,44 +101,44 @@ int main() {
     return 0;
 }
 
-static void keyCallback(GLFWwindow *w, const int key, const int scancode, const int action, const int mode) {
-    static bool keyboard[512] = {false};
+static void processInput(){
+    const KeyState &keyState = window.getKeyState();
+    const MouseState &mouseState = window.getMouseState();
+    const auto deltaTime = (float)window.getDeltaTime();
 
-    if (action == GLFW_PRESS)
-        keyboard[key] = true;
-    else if (action == GLFW_RELEASE)
-        keyboard[key] = false;
-
-    if (keyboard[GLFW_KEY_ESCAPE])
+    if(keyState.key == GLFW_KEY_ESCAPE)
         window.close();
 
-    constexpr float speed = 0.5f;
-    const float delta = window.getDeltaTime();
-    glm::vec3 t{};
-
-    if (keyboard[GLFW_KEY_W])
-        t.z += speed * delta;
-    if (keyboard[GLFW_KEY_S])
-        t.z -= speed * delta;
-    if (keyboard[GLFW_KEY_A])
-        t.x -= speed * delta;
-    if (keyboard[GLFW_KEY_D])
-        t.x += speed * delta;
-    camera.move(t);
-
-    if (keyboard[GLFW_KEY_SPACE])
-        camera.lookAt(glm::vec3(0, 0, 0));
-}
-
-static void cursorPosCallback(GLFWwindow *w, const double x, const double y) {
-    static double lastX = 0, lastY = 0;
-    if (lastX == 0 && lastY == 0) {
-        lastX = x;
-        lastY = y;
-        return;
+    if(keyState.keyboard[GLFW_KEY_SPACE]) {
+        camera.lookAt(glm::vec3());
+    }else {
+        glm::vec3 translate;
+        const float deltaMove = deltaTime * 1.f;
+        if (keyState.keyboard[GLFW_KEY_D])
+            translate.x = deltaMove;
+        if (keyState.keyboard[GLFW_KEY_A])
+            translate.x -= deltaMove;
+        if (keyState.keyboard[GLFW_KEY_W])
+            translate.y = deltaMove;
+        if (keyState.keyboard[GLFW_KEY_S])
+            translate.y -= deltaMove;
+        translate.z = (float) mouseState.scrollY * deltaTime * 2.f;
+        camera.move(translate);
     }
 
-    camera.rotate(glm::vec3(y - lastY, x - lastX, 0), 0.002);
-    lastX = x;
-    lastY = y;
+    static double lastX = 0, lastY = 0;
+    if (lastX == 0){
+        lastX = mouseState.x;
+        lastY = mouseState.y;
+        return;
+    }
+    // mouseState.x/y 是像素坐标
+    const glm::vec3 axis(mouseState.y - lastY, mouseState.x - lastX, 0);
+    const float deltaAngle = deltaTime * std::sqrtf(axis.x * axis.x + axis.y * axis.y) * 0.1f;
+
+    if(deltaAngle != 0.)
+        camera.rotate(axis, deltaAngle);
+
+    lastX = mouseState.x;
+    lastY = mouseState.y;
 }

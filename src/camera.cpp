@@ -1,27 +1,49 @@
 #include "camera.hpp"
 
 Camera::Camera(const glm::vec3 &position, const glm::vec3 &direction, const glm::vec3 &up) {
-    _forward = glm::normalize(direction);
-    _right = glm::normalize(glm::cross(_forward, up));
-    _up = glm::cross(_right, _forward);
-    _position = position;
+    forward_ = glm::normalize(direction);
+    right_ = glm::normalize(glm::cross(forward_, up));
+    up_ = glm::cross(right_, forward_);
+    position_ = position;
 
-    _view = glm::mat4(_right.x, _up.x, -_forward.x, 0.0f,
-                      _right.y, _up.y, -_forward.y, 0.0f,
-                      _right.z, _up.z, -_forward.z, 0.0f,
-                      -glm::dot(_right, position), -glm::dot(_up, position), glm::dot(_forward, position), 1.0f);
+    view_ = glm::mat4(right_.x, up_.x, -forward_.x, 0.0f,
+                      right_.y, up_.y, -forward_.y, 0.0f,
+                      right_.z, up_.z, -forward_.z, 0.0f,
+                      -glm::dot(right_, position), -glm::dot(up_, position), glm::dot(forward_, position), 1.0f);
 
-    _projection = glm::mat4();
+    projection_ = glm::mat4();
 }
 
-void Camera::calcTranslate() {
-    _view[3][0] = -glm::dot(_right, _position);
-    _view[3][1] = -glm::dot(_up, _position);
-    _view[3][2] = glm::dot(_forward, _position);
+inline void Camera::calcTranslate() {
+    view_[3][0] = -glm::dot(right_, position_);
+    view_[3][1] = -glm::dot(up_, position_);
+    view_[3][2] = glm::dot(forward_, position_);
 }
 
-void Camera::getAxisFromRotMat() {
-    _right = glm::vec3(_view[0][0], _view[1][0], _view[2][0]);
-    _up = glm::vec3(_view[0][1], _view[1][1], _view[2][1]);
-    _forward = glm::vec3(-_view[0][2], -_view[1][2], -_view[2][2]);
+inline void Camera::getAxisFromRotMat() {
+    right_ = glm::vec3(view_[0][0], view_[1][0], view_[2][0]);
+    up_ = glm::vec3(view_[0][1], view_[1][1], view_[2][1]);
+    forward_ = glm::vec3(-view_[0][2], -view_[1][2], -view_[2][2]);
+}
+
+void Camera::moveTo(const glm::vec3 &position) {
+    position_ = position;
+    calcTranslate();
+}
+
+// radians
+void Camera::rotate(const glm::vec3 &axis, const float angle) {
+    view_ = glm::rotate(view_, angle, axis);
+    getAxisFromRotMat();
+    calcTranslate();
+}
+
+// (right, up, forward)
+void Camera::move(const glm::vec3 &offset) {
+    moveTo(position_ + offset.x * right_ + offset.y * up_ + offset.z * forward_);
+}
+
+void Camera::lookAt(const glm::vec3 &position, const glm::vec3 &up) {
+    view_ = glm::lookAt(position_, position, up);
+    getAxisFromRotMat();
 }

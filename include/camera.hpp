@@ -10,8 +10,8 @@ public:
                     const glm::vec3 &direction = glm::vec3(0, 0, -1),
                     const glm::vec3 &up = glm::vec3(0, 1, 0));
 
-    void setOrtho(const float width, const float height, const float near, const float far) {
-        _projection = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, near, far);
+    void setOrthogonal(const float width, const float height, const float near, const float far) {
+        projection_ = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, near, far);
     }
 
     /*
@@ -19,45 +19,33 @@ public:
      * aspect: 宽高比
      */
     void setPerspective(const float fov, const float aspect, const float near, const float far) {
-        _projection = glm::perspective(glm::radians(fov), aspect, near, far);
+        projection_ = glm::perspective(glm::radians(fov), aspect, near, far);
     }
 
     glm::mat4 getMatrix() const {
-        return _projection * _view;
+        return projection_ * view_;
     }
 
-    void moveTo(const glm::vec3 &position) {
-        _position = position;
-        calcTranslate();
-    }
+    void moveTo(const glm::vec3 &position);
 
     // radians
-    void rotate(const glm::vec3 &axis, const float angle) {
-        _view = glm::rotate(_view, angle, axis);
-        getAxisFromRotMat();
-        calcTranslate();
-    }
+    void rotate(const glm::vec3 &axis, float angle);
 
     // (right, up, forward)
-    void move(const glm::vec3 &offset) {
-        moveTo(_position + offset.x * _right + offset.y * _up + offset.z * _forward);
-    }
+    void move(const glm::vec3 &offset);
 
-    void lookAt(const glm::vec3 &position, const glm::vec3 &up = glm::vec3(0, 1, 0)) {
-        _view = glm::lookAt(_position, position, up);
-        getAxisFromRotMat();
-    }
+    void lookAt(const glm::vec3 &position, const glm::vec3 &up = glm::vec3(0, 1, 0));
 
 private:
     // 从view矩阵的旋转部分中获取相机坐标轴
-    void getAxisFromRotMat();
+    inline void getAxisFromRotMat();
 
     // 由坐标轴和相机位置计算view的平移部分
-    void calcTranslate();
+    inline void calcTranslate();
 
-    glm::vec3 _forward, _up, _right;
-    glm::vec3 _position;
-    glm::mat4 _view, _projection;
+    glm::vec3 forward_, up_, right_;
+    glm::vec3 position_;
+    glm::mat4 view_, projection_;
 };
 
 #endif //GL_CAMERA_HPP

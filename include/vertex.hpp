@@ -90,13 +90,13 @@ public:
     void draw(GLenum mode, GLint count, const ElementBuffer *ebo = nullptr) const;
 
     ~VertexSet(){
-        delete _vao;
-        delete _vbo;
+        delete vao_;
+        delete vbo_;
     }
 
 private:
-    const VertexArray *_vao;
-    const VertexBuffer *_vbo;
+    const VertexArray *vao_;
+    const VertexBuffer *vbo_;
 };
 
 #endif //GL_VERTEX_HPP
