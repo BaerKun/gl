@@ -2,10 +2,13 @@
 #define OPENGL_TEXTURE_HPP
 
 #include "glad/glad.h"
+#include <string>
 
 // 对纹理的设置作用于当前绑定的纹理，而非全局或当前纹理单元(sampler)
 class Texture2D {
 public:
+    explicit Texture2D(const std::string &path);
+
     /*
      * default: GL_REPEAT
      * GL_
@@ -37,8 +40,6 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
     }
-
-    explicit Texture2D(const char *path);
 
     void bind(const GLuint sampler) const {
         // glActiveTexture只是声明了之后要绑定的纹理单元，只有调用glBindTexture后才真正生效

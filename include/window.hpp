@@ -21,10 +21,12 @@ typedef struct {
 
 class Window {
 public:
-    Window(int width, int height, const char *name);
+    Window() = default;
 
-    void refresh() {
-        glfwSwapBuffers(window_);
+    static void init(int width, int height, const char name[]);
+
+    static void refresh() {
+        glfwSwapBuffers(glfwWindow_);
 
         const double currentTime = glfwGetTime();
         deltaTime_ = currentTime - lastFrameTime_;
@@ -33,32 +35,34 @@ public:
 
     static void updateInputState();
 
-    bool shouldClose() const {
-        return glfwWindowShouldClose(window_);
+    static bool shouldClose() {
+        return glfwWindowShouldClose(glfwWindow_);
     }
 
-    void close() const {
-        glfwSetWindowShouldClose(window_, GLFW_TRUE);
+    static void close() {
+        glfwSetWindowShouldClose(glfwWindow_, GLFW_TRUE);
     }
 
-    double getDeltaTime() const {
+    static double getDeltaTime() {
         return deltaTime_;
     }
 
-    const KeyState &getKeyState() const {
+    static const KeyState &getKeyState() {
         return keyState_;
     }
 
-    const MouseState &getMouseState() const {
+    static const MouseState &getMouseState() {
         return mouseState_;
     }
 
 private:
-    GLFWwindow *window_;
-    double lastFrameTime_ = 0.;
-    double deltaTime_ = 0.;
-    KeyState &keyState_;
-    MouseState &mouseState_;
+    static void setCallback(GLFWwindow *window);
+
+    static KeyState keyState_;
+    static MouseState mouseState_;
+    static GLFWwindow *glfwWindow_;
+    static double lastFrameTime_;
+    static double deltaTime_;
 };
 
 #endif //GL_WINDOW_HPP

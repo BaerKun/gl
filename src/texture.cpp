@@ -4,13 +4,13 @@
 #include <iostream>
 
 
-Texture2D::Texture2D(const char *path) {
+Texture2D::Texture2D(const std::string &path) {
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
 
     int width, height, channels;
     stbi_set_flip_vertically_on_load(1); // 加载图片时翻转Y轴
-    unsigned char *data = stbi_load(path, &width, &height, &channels,  0);
+    unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels,  0);
     if (data == nullptr) {
         std::cout << "Error: Failed to load texture: " << path << std::endl;
         return;

@@ -5,14 +5,13 @@
 #include <sstream>
 #include <cstring>
 
-const ShaderProgram *currShaderProgram = nullptr;
 static char errorLog[256];
 
-static inline void uniformNotFound(const char *name) {
+static inline void uniformNotFound(const std::string &name) {
     std::cerr << "Error: Uniform " << name << " not found." << std::endl;
 }
 
-std::string Shader::loadSource(const char *filename) {
+std::string Shader::loadSource(const std::string &filename) {
     std::ifstream file(filename);
 
     if (!file.is_open()) {
@@ -28,10 +27,11 @@ std::string Shader::loadSource(const char *filename) {
     return content;
 }
 
-void Shader::compile(const char *source) const {
+void Shader::compile(const std::string &source) const {
     int success;
+    const char *str = source.c_str();
 
-    glShaderSource(id, 1, &source, nullptr);
+    glShaderSource(id, 1, &str, nullptr);
     glCompileShader(id);
 
     glGetShaderiv(id, GL_COMPILE_STATUS, &success);
@@ -42,7 +42,7 @@ void Shader::compile(const char *source) const {
     }
 }
 
-void Shader::load(const char *filename) const {
+void Shader::load(const std::string &filename) const {
     const std::string source = loadSource(filename);
     if (!source.empty())
         compile(source.c_str());
@@ -62,24 +62,24 @@ ShaderProgram::ShaderProgram(const Shader &vertexShader, const Shader &fragmentS
     }
 }
 
-void ShaderProgram::setUniform(const char *name, const int value) const {
-    const GLint location = glGetUniformLocation(id, name);
+void ShaderProgram::setUniform(const std::string &name, const int value) const {
+    const GLint location = glGetUniformLocation(id, name.c_str());
     if (location == -1)
         uniformNotFound(name);
     else
         glUniform1i(location, value);
 }
 
-void ShaderProgram::setUniform(const char *name, const float value) const {
-    const GLint location = glGetUniformLocation(id, name);
+void ShaderProgram::setUniform(const std::string &name, const float value) const {
+    const GLint location = glGetUniformLocation(id, name.c_str());
     if (location == -1)
         uniformNotFound(name);
     else
         glUniform1f(location, value);
 }
 
-void ShaderProgram::setUniformVec(const char *name, const float *value, const int dims) const {
-    const GLint location = glGetUniformLocation(this->id, name);
+void ShaderProgram::setUniformVec(const std::string &name, const float *value, const int dims) const {
+    const GLint location = glGetUniformLocation(this->id, name.c_str());
     if (location == -1) {
         uniformNotFound(name);
         return;
@@ -98,8 +98,8 @@ void ShaderProgram::setUniformVec(const char *name, const float *value, const in
     }
 }
 
-void ShaderProgram::setUniformMat(const char *name, const float *value, const int rowCols) const {
-    const GLint location = glGetUniformLocation(this->id, name);
+void ShaderProgram::setUniformMat(const std::string &name, const float *value, const int rowCols) const {
+    const GLint location = glGetUniformLocation(this->id, name.c_str());
     if (location == -1) {
         uniformNotFound(name);
         return;

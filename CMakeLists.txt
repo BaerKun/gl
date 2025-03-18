@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(gl C CXX)
 
 if (APPLE)
@@ -7,7 +7,7 @@ if (APPLE)
     set(CMAKE_CXX_COMPILER /Library/Developer/CommandLineTools/usr/bin/c++)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # glm是头文件库，不需要单独编译
 add_subdirectory(3rdparty/glad)
@@ -18,5 +18,5 @@ add_library(core STATIC ${SOURCES})
 target_include_directories(core PUBLIC include 3rdparty/glad/include 3rdparty/glfw/include 3rdparty/glm)
 target_link_libraries(core PUBLIC glad glfw)
 
-add_executable(demo demo0.cpp)
+add_executable(demo demo1.cpp)
 target_link_libraries(demo PRIVATE core)

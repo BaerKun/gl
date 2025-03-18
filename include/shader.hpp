@@ -8,25 +8,22 @@ class Shader {
 public:
     GLuint id;
 
-    explicit Shader(const GLenum type, const char *source = nullptr) {
+    explicit Shader(const GLenum type, const std::string &source = std::string()) {
         id = glCreateShader(type);
-        if (source != nullptr)
+        if (!source.empty())
             compile(source);
     }
 
-    void compile(const char *source) const;
+    void compile(const std::string &source) const;
 
-    void load(const char *filename) const;
+    void load(const std::string &filename) const;
 
-    static std::string loadSource(const char *filename);
+    static std::string loadSource(const std::string &filename);
 
     ~Shader() {
         glDeleteShader(id);
     }
 };
-
-class ShaderProgram;
-extern const ShaderProgram *currShaderProgram;
 
 class ShaderProgram {
 public:
@@ -38,16 +35,15 @@ public:
 
     void use() const {
         glUseProgram(id);
-        currShaderProgram = this;
     }
 
-    void setUniform(const char *name, float value) const;
+    void setUniform(const std::string &name, float value) const;
 
-    void setUniform(const char *name, int value) const;
+    void setUniform(const std::string &name, int value) const;
 
-    void setUniformVec(const char *name, const float *value, int dims) const;
+    void setUniformVec(const std::string &name, const float *value, int dims) const;
 
-    void setUniformMat(const char *name, const float *value, int rowCols) const;
+    void setUniformMat(const std::string &name, const float *value, int rowCols) const;
 
 private:
     GLuint id;

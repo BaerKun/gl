@@ -8,8 +8,8 @@
 #include "shader.hpp"
 #include "vertex.hpp"
 
-constexpr int WINDOW_WIDTH = 800;
-constexpr int WINDOW_HEIGHT = 600;
+constexpr int WINDOW_WIDTH = 1000;
+constexpr int WINDOW_HEIGHT = 800;
 
 constexpr float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -60,18 +60,21 @@ constexpr unsigned elements[] = {
     2, 3, 0
 };
 
-Camera camera;
-Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "learn-GL");
+static std::string projectRoot = "E:/Project/beak/gl/";
 
-static void processInput();
+static void processInput(Camera &camera);
 
 int main() {
-    const Texture2D happy("../img/happy_face.png");
-    const Texture2D container("../img/container.jpg");
+    Window::init(WINDOW_WIDTH, WINDOW_HEIGHT, "learn-GL");
+    
+    Camera camera;
+    
+    const Texture2D happy(projectRoot + "img/happy_face.png");
+    const Texture2D container(projectRoot + "img/container.jpg");
 
     const ShaderProgram program(
-        Shader(GL_VERTEX_SHADER, Shader::loadSource("../glsl/vert0.glsl").c_str()),
-        Shader(GL_FRAGMENT_SHADER, Shader::loadSource("../glsl/frag0.glsl").c_str()));
+        Shader(GL_VERTEX_SHADER, Shader::loadSource(projectRoot + "glsl/vert0.glsl")),
+        Shader(GL_FRAGMENT_SHADER, Shader::loadSource(projectRoot + "glsl/frag0.glsl")));
 
     program.use();
     happy.bind(0);
@@ -85,29 +88,29 @@ int main() {
     camera.setPerspective(45.f, static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT, 0.1f, 100.f);
 
     glEnable(GL_DEPTH_TEST);
-    while (!window.shouldClose()) {
+    while (!Window::shouldClose()) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         Window::updateInputState();
-        processInput();
+        processInput(camera);
 
         program.setUniformMat("transform", glm::value_ptr(camera.getMatrix()), 4);
         cube.draw(GL_TRIANGLES, 36);
 
-        window.refresh();
+        Window::refresh();
     }
     glfwTerminate();
     return 0;
 }
 
-static void processInput(){
-    const KeyState &keyState = window.getKeyState();
-    const MouseState &mouseState = window.getMouseState();
-    const auto deltaTime = (float)window.getDeltaTime();
+static void processInput(Camera &camera){
+    const KeyState &keyState = Window::getKeyState();
+    const MouseState &mouseState = Window::getMouseState();
+    const auto deltaTime = (float)Window::getDeltaTime();
 
     if(keyState.key == GLFW_KEY_ESCAPE)
-        window.close();
+        Window::close();
 
     if(keyState.keyboard[GLFW_KEY_SPACE]) {
         camera.lookAt(glm::vec3());
@@ -122,7 +125,7 @@ static void processInput(){
             translate.y = deltaMove;
         if (keyState.keyboard[GLFW_KEY_S])
             translate.y -= deltaMove;
-        translate.z = (float) mouseState.scrollY * deltaTime * 2.f;
+        translate.z = (float) mouseState.scrollY * deltaTime * 8.f;
         camera.move(translate);
     }
 
@@ -134,7 +137,7 @@ static void processInput(){
     }
     // mouseState.x/y 是像素坐标
     const glm::vec3 axis(mouseState.y - lastY, mouseState.x - lastX, 0);
-    const float deltaAngle = deltaTime * std::sqrtf(axis.x * axis.x + axis.y * axis.y) * 0.1f;
+    const float deltaAngle = deltaTime * std::sqrtf(axis.x * axis.x + axis.y * axis.y) * 0.08f;
 
     if(deltaAngle != 0.)
         camera.rotate(axis, deltaAngle);
