@@ -21,7 +21,7 @@ typedef struct {
 
 class Window {
 public:
-    Window() = default;
+    Window() = delete;
 
     static void init(int width, int height, const char name[]);
 

@@ -18,5 +18,8 @@ add_library(core STATIC ${SOURCES})
 target_include_directories(core PUBLIC include 3rdparty/glad/include 3rdparty/glfw/include 3rdparty/glm)
 target_link_libraries(core PUBLIC glad glfw)
 
-add_executable(demo demo1.cpp)
-target_link_libraries(demo PRIVATE core)
+add_executable(demo0 demo0.cpp)
+target_link_libraries(demo0 PRIVATE core)
+
+add_executable(deom1 demo1.cpp)
+target_link_libraries(deom1 PRIVATE core)

@@ -1,9 +1,10 @@
-#include <camera.hpp>
 #include <iostream>
+
+#include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "camera.hpp"
 #include "texture.hpp"
-#include "glad/glad.h"
 #include "window.hpp"
 #include "shader.hpp"
 #include "vertex.hpp"
@@ -55,13 +56,12 @@ constexpr float vertices[] = {
     -0.5f,  0.5f, -0.5f,
 };
 
-static std::string projectRoot = "E:/Project/beak/gl/";
+static std::string projectRoot = "/home/beak/wksp/gl/";
 
 static void processInput(Camera &camera);
 
 int main() {
     Window::init(WINDOW_WIDTH, WINDOW_HEIGHT, "learn-GL");
-
     Camera camera;
     
     const ShaderProgram program(
@@ -81,7 +81,7 @@ int main() {
         Window::updateInputState();
         processInput(camera);
 
-        const float wave = 0.5f + std::sinf(static_cast<float>(glfwGetTime())) / 2.f;
+        const float wave = 0.5f + std::sin(static_cast<float>(glfwGetTime())) / 2.f;
         float ambientLight[3] = {wave, wave, wave};
 
         program.setUniformVec("ambientLight", ambientLight, 3);
@@ -97,7 +97,7 @@ int main() {
 static void processInput(Camera &camera){
     const KeyState &keyState = Window::getKeyState();
     const MouseState &mouseState = Window::getMouseState();
-    const auto deltaTime = (float)Window::getDeltaTime();
+    const auto deltaTime = static_cast<float>(Window::getDeltaTime());
 
     if(keyState.key == GLFW_KEY_ESCAPE)
         Window::close();
@@ -115,7 +115,7 @@ static void processInput(Camera &camera){
             translate.y = deltaMove;
         if (keyState.keyboard[GLFW_KEY_S])
             translate.y -= deltaMove;
-        translate.z = (float) mouseState.scrollY * deltaTime * 8.f;
+        translate.z = static_cast<float>(mouseState.scrollY) * deltaTime * 8.f;
         camera.move(translate);
     }
 
@@ -127,7 +127,7 @@ static void processInput(Camera &camera){
     }
     // mouseState.x/y 是像素坐标
     const glm::vec3 axis(mouseState.y - lastY, mouseState.x - lastX, 0);
-    const float deltaAngle = deltaTime * std::sqrtf(axis.x * axis.x + axis.y * axis.y) * 0.08f;
+    const float deltaAngle = deltaTime * std::sqrt(axis.x * axis.x + axis.y * axis.y) * 0.08f;
 
     if(deltaAngle != 0.)
         camera.rotate(axis, deltaAngle);

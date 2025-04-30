@@ -5,11 +5,11 @@ KeyState Window::keyState_{};
 MouseState Window::mouseState_{};
 GLFWwindow *Window::glfwWindow_ = nullptr;
 double Window::lastFrameTime_ = 0.;
-double Window::deltaTime_ = 0.;
+double Window::deltaTime_ = 1e-9;
 
 
 void Window::setCallback(GLFWwindow *window) {
-    glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scancode, int action, int mods){
+    glfwSetKeyCallback(window, [](GLFWwindow *, const int key, int scancode, const int action, int mods){
         if (action == GLFW_PRESS)
             keyState_.keyboard[key] = true;
         else if (action == GLFW_RELEASE)
@@ -18,17 +18,17 @@ void Window::setCallback(GLFWwindow *window) {
         keyState_.action = action;
     });
 
-    glfwSetCursorPosCallback(window, [](GLFWwindow *window, double x, double y){
+    glfwSetCursorPosCallback(window, [](GLFWwindow *, const double x, const double y){
         mouseState_.x = x;
         mouseState_.y = y;
     });
 
-    glfwSetMouseButtonCallback(window, [](GLFWwindow *window, int button, int action, int mods){
+    glfwSetMouseButtonCallback(window, [](GLFWwindow *, const int button, const int action, int mods){
         mouseState_.button = button;
         mouseState_.action = action;
     });
 
-    glfwSetScrollCallback(window, [](GLFWwindow *window, double x, double y){
+    glfwSetScrollCallback(window, [](GLFWwindow *, const double x, const double y){
         mouseState_.scrollX = x;
         mouseState_.scrollY = y;
     });

@@ -1,9 +1,10 @@
-#include <camera.hpp>
 #include <iostream>
+
+#include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "camera.hpp"
 #include "texture.hpp"
-#include "glad/glad.h"
 #include "window.hpp"
 #include "shader.hpp"
 #include "vertex.hpp"
@@ -60,7 +61,7 @@ constexpr unsigned elements[] = {
     2, 3, 0
 };
 
-static std::string projectRoot = "E:/Project/beak/gl/";
+static std::string projectRoot = "/home/beak/wksp/gl/";
 
 static void processInput(Camera &camera);
 
@@ -137,7 +138,7 @@ static void processInput(Camera &camera){
     }
     // mouseState.x/y 是像素坐标
     const glm::vec3 axis(mouseState.y - lastY, mouseState.x - lastX, 0);
-    const float deltaAngle = deltaTime * std::sqrtf(axis.x * axis.x + axis.y * axis.y) * 0.08f;
+    const float deltaAngle = deltaTime * std::sqrt(axis.x * axis.x + axis.y * axis.y) * 0.08f;
 
     if(deltaAngle != 0.)
         camera.rotate(axis, deltaAngle);
